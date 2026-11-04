@@ -2,7 +2,7 @@
 
 Entrada: data/niteroi/A/<nome>.png (antes) e data/niteroi/B/<nome>.png (depois),
          capturadas na mesma extensão, no mesmo zoom e com a mesma janela.
-Uso:  python src/infer.py --weights results/best.pth --mpp 0.55
+Uso:  python src/infer.py --weights results/best.pth
 Saídas em results/niteroi/: máscara, sobreposição (depois + mudanças) e resumo.json.
 """
 import argparse, json
@@ -34,10 +34,13 @@ def main():
     ap.add_argument("--weights", default="results/best.pth")
     ap.add_argument("--dir", default="data/niteroi")
     ap.add_argument("--out", default="results/niteroi")
-    ap.add_argument("--mpp", type=float, default=0.55, help="metros por pixel (zoom 18 ~ 0,55)")
+    ap.add_argument("--mpp", type=float, default=None, help="metros por pixel (padrão: lido de meta.json)")
     ap.add_argument("--thr", type=float, default=0.5)
     args = ap.parse_args()
 
+    meta = Path(args.dir, "meta.json")
+    if args.mpp is None:
+        args.mpp = json.load(open(meta))["mpp"] if meta.exists() else 0.55
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     model = build_model(pretrained=False).to(dev)
     model.load_state_dict(torch.load(args.weights, map_location=dev))
