@@ -36,7 +36,7 @@ th,td{border-bottom:1px solid var(--rule);padding:.45rem .6rem;text-align:right}
   <div class="bar"></div>
   <input type="range" min="0" max="100" value="50" aria-label="Comparar antes e depois" id="rng">
 </div>
-<p class="leg">Arraste para comparar: à esquerda, [DATA ANTES]; à direita, [DATA DEPOIS] com as mudanças em magenta. Fonte: Esri World Imagery Wayback.</p>
+<p class="leg">Arraste para comparar: à esquerda, 2020-12-16; à direita, 2026-04-30 com as mudanças detectadas em magenta (área B de Niterói). Fonte: Esri World Imagery Wayback.</p>
 
 <h2>Como funciona</h2>
 <p>O modelo é uma U-Net que recebe as duas imagens empilhadas e devolve, para cada pixel, se houve mudança. Foi treinado no LEVIR-CD, um conjunto público de pares de imagens com construções novas, e depois aplicado a Niterói.</p>
@@ -44,21 +44,31 @@ th,td{border-bottom:1px solid var(--rule);padding:.45rem .6rem;text-align:right}
 <h2>Resultados no LEVIR-CD (teste)</h2>
 <table>
 <tr><th>Modelo</th><th>Precision</th><th>Recall</th><th>F1</th><th>IoU</th></tr>
-<tr><td>Diferença + limiar</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>
-<tr><td>U-Net (6 canais)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>
+<tr><td>Diferença + limiar</td><td>0,104</td><td>0,175</td><td>0,131</td><td>0,070</td></tr>
+<tr><td>U-Net original</td><td>0,896</td><td>0,857</td><td>0,876</td><td>0,779</td></tr>
+<tr><td>U-Net robusta</td><td>0,888</td><td>0,855</td><td>0,871</td><td>0,771</td></tr>
+<tr><td>U-Net mista</td><td>0,895</td><td>0,858</td><td>0,876</td><td>0,779</td></tr>
 </table>
 
-<h2>Exemplos em Niterói</h2>
+<h2>Estudo de caso em Niterói</h2>
+<p>Dois pares de imagens, avaliados pela conferência visual de cada região marcada pela união dos três modelos.</p>
+<table>
+<tr><th>Área</th><th>Regiões marcadas</th><th>Construções novas</th><th>Falsos alarmes</th></tr>
+<tr><td>B (2020 → 2026)</td><td>12</td><td>10</td><td>2</td></tr>
+<tr><td>A (2014 → 2026)</td><td>16</td><td>6</td><td>10</td></tr>
+</table>
 <div class="grid">
-  <img src="figuras/exemplo1.png" alt="Exemplo 1: antes, depois e previsão">
-  <img src="figuras/exemplo2.png" alt="Exemplo 2: antes, depois e previsão">
+  <img src="figuras/area_b.png" alt="Área B: antes, depois e mudanças detectadas">
+  <img src="figuras/area_a.png" alt="Área A: antes, depois e mudanças detectadas">
+  <img src="figuras/exemplos_levir.png" alt="Exemplos do LEVIR-CD: antes, depois, máscara real e previsão">
 </div>
 
 <h2>O que o modelo erra</h2>
-<p>[Descreva 2 ou 3 erros típicos que você viu: sombras, telhados parecidos com o solo, vegetação.] O modelo foi treinado com imagens dos EUA, então o desempenho em Niterói tende a ser menor.</p>
+<p>Na área A, a imagem de 2014 é mais pixelada e tem outra exposição que a de 2026, e a maioria das marcações foi de telhados que já existiam. Na área B, com imagens de boa qualidade nas duas datas, o modelo detectou as construções novas contadas. O modelo original ignora telhados cinzas e o robusto perde parte dos de cor de tijolo; a união dos três reduz esse problema. São duas áreas pequenas e a contagem foi visual, então os resultados são indícios, não medidas definitivas.</p>
 
 <h2>Código e modelo</h2>
-<p><a href="[LINK GITHUB]">Repositório no GitHub</a> · <a href="[LINK HUGGING FACE]">Pesos no Hugging Face</a></p>
+<p><a href="https://github.com/lainermoura/deteccao-mudancas-construcoes">Repositório no GitHub</a> · <a href="https://huggingface.co/lainermoura/ftl-deteccao-mudancas-unet">Pesos no Hugging Face</a></p>
+<p class="leg">Imagens de Niterói: Esri World Imagery Wayback (versões de 2014-12-03, 2020-12-16 e 2026-04-30), sujeitas aos termos da Esri. Exemplos do LEVIR-CD: Chen e Shi (2020).</p>
 </main>
 <script>
 var c=document.getElementById('cmp'),r=document.getElementById('rng');

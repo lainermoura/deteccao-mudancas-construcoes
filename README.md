@@ -21,18 +21,23 @@ docs/index.html   # página do GitHub Pages
 ```bash
 pip install -r requirements.txt
 python src/train.py --epochs 25 --batch 16 --lr 1e-4   # use GPU (Colab/Kaggle)
-python src/infer.py --weights results/best.pth --mpp 0.55
+python src/train.py --robusto --nome robusto             # variante com variações de cor e nitidez (opcional)
+python src/infer.py --weights results/best.pth
+python src/infer.py --weights results/best.pth results/best_robusto.pth results/best_misto.pth   # união dos três modelos
 ```
 
 No Colab: clone o repositório, ative a GPU e rode os comandos com `!` na frente.
 
-## Como obter o par de imagens de Niterói (Esri Wayback)
+## Como obter o par de imagens de Niterói (Esri Wayback Export)
 
-1. Abra o app **World Imagery Wayback** (Esri) e vá até -22.9303, -43.0281.
-2. Escolha duas versões que tenham **mudança local** na área, com 2 a 3 anos ou mais de diferença. Anote as datas.
-3. Use **zoom 18** (cerca de 0,55 m/pixel, escala próxima à do LEVIR-CD). Mantenha o zoom e o tamanho da janela do navegador **idênticos** nas duas datas.
-4. Capture a mesma extensão nas duas datas, com o mesmo nome de arquivo, e salve em `data/niteroi/A/` (antes) e `data/niteroi/B/` (depois). Use PNG.
-5. Rode `python src/infer.py`. Se usar zoom diferente de 18, ajuste `--mpp`.
+1. No app **World Imagery Wayback** (Esri), vá até -22.9303, -43.0281 e escolha duas versões com **mudança local**, com vários anos de diferença (neste projeto: 2014-12-03 e 2026-04-30).
+2. Para cada versão, use a opção de exportar (*Tile Export*), com o **mesmo enquadramento do mapa** nas duas, e baixe o pacote `.tpkx`. Os níveis 1 a 18 bastam; o nível 18 é o que as duas versões têm em comum (cerca de 0,55 m/pixel).
+3. Converta os pacotes em um par de imagens alinhadas, usando só os tiles presentes nos dois:
+   ```bash
+   python src/tpkx_to_pairs.py antes.tpkx depois.tpkx --antes-data 2014-12-03 --depois-data 2026-04-30
+   ```
+   Isso gera `data/niteroi/A/niteroi.png`, `data/niteroi/B/niteroi.png` e `data/niteroi/meta.json` (com a resolução real e os limites geográficos da área).
+4. Rode `python src/infer.py`.
 
 **Termos de uso:** as imagens pertencem à Esri e seus provedores e estão sujeitas aos termos da Esri; a camada padrão não se destina à exportação para uso offline. Confira os termos antes de usar, não publique as imagens originais neste repositório e cite a fonte (Esri World Imagery Wayback e as datas das versões).
 
